@@ -17,19 +17,31 @@ export default {
     }),
   ],
   module: {
-    rules: [
-      {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
-      },
-      {
-        test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
-        type: 'asset',
-      },
-      {
-        test: /\.scss$/,
-        use: ['style-loader', 'css-loader', 'sass-loader', 'postcss-loader'],
-      },
-    ],
-  },
+   rules: [
+     {
+       test: /\.css$/,
+       use: ['style-loader', 'css-loader'],
+     },
+     {
+       test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
+       type: 'asset',
+     },
+     {
+       test: /\.scss$/,
+       use: [
+         'style-loader',
+         'css-loader',
+         {
+           loader: 'sass-loader',
+           options: {
+             sassOptions: {
+               quietDeps: true, // Подавляет предупреждения об устаревших зависимостях
+             },
+           },
+         },
+         'postcss-loader',
+       ],
+     },
+   ],
+ },
 };

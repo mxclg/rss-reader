@@ -1,4 +1,6 @@
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './styles.scss';
+import app from './app.js';
 
-console.log('Hello, world!');
+app();
