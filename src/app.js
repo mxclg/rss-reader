@@ -1,9 +1,25 @@
 import * as yup from 'yup';
-import initView from './view.js'; // Импортируем функцию для инициализации view
+import i18next from 'i18next';
+import resources from './locales/index.js';
+import initView from './view.js';
 
-// Основная функция приложения
-const app = () => {
-  // Инициализируем состояние
+const app = async () => {
+  const i18n = i18next.createInstance();
+  await i18n.init({
+    lng: 'ru',
+    debug: false,
+    resources,
+  });
+
+  yup.setLocale({
+    string: {
+      url: () => ({ key: 'validation.urlError' }),
+    },
+    mixed: {
+      notOneOf: () => ({ key: 'validation.notOneOf' }),
+    },
+  });
+
   const state = {
     form: {
       valid: true,
@@ -12,33 +28,33 @@ const app = () => {
     feeds: [],
   };
 
-  const watchedState = initView(state); // Оборачиваем состояние для отслеживания изменений
+  const watchedState = initView(state);
 
   const form = document.querySelector('.rss-form');
   const input = document.getElementById('url-input');
 
-  // Схема валидации URL
-  const schema = yup.string().url('Некорректный URL').required('URL не должен быть пустым');
+  const schema = yup.string().url().required();
 
-  // Функция валидации и добавления URL
   const validateAndAddFeed = (url) => {
+    watchedState.form.valid = null;
+    watchedState.form.error = '';
+
     return schema
       .validate(url)
       .then((validUrl) => {
         if (watchedState.feeds.includes(validUrl)) {
-          throw new Error('Этот RSS уже добавлен');
+          throw new Error('validation.notOneOf');
         }
         watchedState.feeds.push(validUrl);
         watchedState.form.valid = true;
-        watchedState.form.error = '';
       })
       .catch((error) => {
         watchedState.form.valid = false;
-        watchedState.form.error = error.message;
+        const errorMessage = i18n.t(error.message?.key || error.message);
+        watchedState.form.error = errorMessage;
       });
   };
 
-  // Обработчик события submit
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     const url = input.value.trim();
