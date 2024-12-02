@@ -23,13 +23,13 @@ const app = async () => {
   });
 
   const state = {
-    form: {
-      valid: true,
-      error: '',
-    },
-    feeds: [],
-    posts: [], // Добавлен массив для постов
-  };
+   form: {
+     valid: true,
+     error: '',
+   },
+   feeds: [],
+   posts: [], // Добавлен массив для постов
+ };
 
   const watchedState = initView(state);
 
@@ -76,6 +76,43 @@ const app = async () => {
     const url = input.value.trim();
     validateAndAddFeed(url);
   });
+
+  const updateFeeds = () => {
+   if (watchedState.feeds.length === 0) {
+     setTimeout(updateFeeds, 5000);
+     return; // Если фидов нет, просто ждем
+   }
+ 
+   // Пробегаемся по всем фидам
+   const promises = watchedState.feeds.map((feed) =>
+     fetchRSS(feed.url)
+       .then((rssContent) => {
+         const { posts } = parseRSS(rssContent);
+ 
+         // Проверяем новые посты
+         const existingLinks = watchedState.posts.map((post) => post.link);
+         const newPosts = posts.filter((post) => !existingLinks.includes(post.link));
+ 
+         // Добавляем новые посты в состояние
+         newPosts.forEach((post) => {
+           watchedState.posts.push({ ...post, feedUrl: feed.url });
+         });
+       })
+       .catch((error) => {
+         console.error(`Ошибка обновления фида ${feed.url}:`, error);
+         // Можно добавить отображение ошибки в интерфейсе, если нужно
+         watchedState.form.error = `Ошибка обновления фида: ${feed.url}`;
+       })
+   );
+ 
+   // Ждем завершения всех обновлений и вызываем updateFeeds снова
+   Promise.all(promises).finally(() => {
+     setTimeout(updateFeeds, 5000);
+   });
+ };
+ 
+ // Запускаем updateFeeds внутри app
+ updateFeeds();
 };
 
 export default app;
