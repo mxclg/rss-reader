@@ -23,40 +23,40 @@ const app = async () => {
   });
 
   const state = {
-   form: {
-     valid: true,
-     error: '',
-   },
-   feeds: [],
-   posts: [],
-   ui: {
-     readPosts: [], // Переименовано для большей ясности
-   },
- };
+    form: {
+      valid: true,
+      error: '',
+    },
+    feeds: [],
+    posts: [],
+    ui: {
+      readPosts: [], // Переименовано для большей ясности
+    },
+  };
 
   const watchedState = initView(state);
 
   const markPostAsRead = (postId) => {
-   if (!watchedState.ui.readPosts.includes(postId)) {
-     watchedState.ui.readPosts.push(postId);
-   }
- };
+    if (!watchedState.ui.readPosts.includes(postId)) {
+      watchedState.ui.readPosts.push(postId);
+    }
+  };
 
- const postsContainer = document.querySelector('.posts');
+  const postsContainer = document.querySelector('.posts');
 
-postsContainer.addEventListener('click', (event) => {
-  const { target } = event;
+  postsContainer.addEventListener('click', (event) => {
+    const { target } = event;
 
-  if (target.tagName === 'A') {
-    const postId = target.dataset.id;
-    markPostAsRead(postId);
-  }
+    if (target.tagName === 'A') {
+      const postId = target.dataset.id;
+      markPostAsRead(postId);
+    }
 
-  if (target.tagName === 'BUTTON' && target.dataset.bsToggle === 'modal') {
-    const postId = target.dataset.id;
-    markPostAsRead(postId);
-  }
-});
+    if (target.tagName === 'BUTTON' && target.dataset.bsToggle === 'modal') {
+      const postId = target.dataset.id;
+      markPostAsRead(postId);
+    }
+  });
 
   const form = document.querySelector('.rss-form');
   const input = document.getElementById('url-input');
@@ -103,39 +103,37 @@ postsContainer.addEventListener('click', (event) => {
   });
 
   const updateFeeds = () => {
-   if (watchedState.feeds.length === 0) {
-     setTimeout(updateFeeds, 5000);
-     return;
-   }
- 
-   const promises = watchedState.feeds.map((feed) =>
-     fetchRSS(feed.url)
-       .then((rssContent) => {
-         const { posts } = parseRSS(rssContent);
- 
-         // Проверяем новые посты
-         const existingLinks = watchedState.posts.map((post) => post.link);
-         const newPosts = posts.filter((post) => !existingLinks.includes(post.link));
- 
-         // Добавляем новые посты в состояние
-         newPosts.forEach((post) => {
-           const isRead = watchedState.ui.readPosts.includes(post.link);
-           watchedState.posts.push({ ...post, feedUrl: feed.url, isRead }); // Сохраняем статус "прочитано"
-         });
-       })
-       .catch((error) => {
-         console.error(`Ошибка обновления фида ${feed.url}:`, error);
-         watchedState.form.error = `Ошибка обновления фида: ${feed.url}`;
-       })
-   );
- 
-   Promise.all(promises).finally(() => {
-     setTimeout(updateFeeds, 5000);
-   });
- };
- 
- // Запускаем updateFeeds внутри app
- updateFeeds();
+    if (watchedState.feeds.length === 0) {
+      setTimeout(updateFeeds, 5000);
+      return;
+    }
+
+    const promises = watchedState.feeds.map((feed) => fetchRSS(feed.url)
+      .then((rssContent) => {
+        const { posts } = parseRSS(rssContent);
+
+        // Проверяем новые посты
+        const existingLinks = watchedState.posts.map((post) => post.link);
+        const newPosts = posts.filter((post) => !existingLinks.includes(post.link));
+
+        // Добавляем новые посты в состояние
+        newPosts.forEach((post) => {
+          const isRead = watchedState.ui.readPosts.includes(post.link);
+          watchedState.posts.push({ ...post, feedUrl: feed.url, isRead });
+        });
+      })
+      .catch((error) => {
+        console.error(`Ошибка обновления фида ${feed.url}:`, error);
+        watchedState.form.error = `Ошибка обновления фида: ${feed.url}`;
+      }));
+
+    Promise.all(promises).finally(() => {
+      setTimeout(updateFeeds, 5000);
+    });
+  };
+
+  // Запускаем updateFeeds внутри app
+  updateFeeds();
 };
 
 export default app;

@@ -10,10 +10,10 @@ const render = (path, value, state) => {
   const modalLink = document.querySelector('.full-article');
 
   if (path === 'ui.readPosts') {
-   render('posts', state.posts, state); // Перерисуем список постов
-   return; // После выполнения этого условия выходим из функции
- }
-  
+    render('posts', state.posts, state); // Перерисуем список постов
+    return; // После выполнения этого условия выходим из функции
+  }
+
   if (path === 'form.valid') {
     if (value === null) {
       input.classList.remove('is-invalid');
@@ -103,40 +103,40 @@ const render = (path, value, state) => {
   }
 
   if (path === 'ui.readPosts') {
-   const posts = state.posts;
-   postsContainer.innerHTML = ''; // Очищаем контейнер
+    const { posts } = state;
+    postsContainer.innerHTML = ''; // Очищаем контейнер
 
-   const card = document.createElement('div');
-   card.classList.add('card', 'border-0');
+    const card = document.createElement('div');
+    card.classList.add('card', 'border-0');
 
-   const cardBody = document.createElement('div');
-   cardBody.classList.add('card-body');
+    const cardBody = document.createElement('div');
+    cardBody.classList.add('card-body');
 
-   const postsTitle = document.createElement('h2');
-   postsTitle.classList.add('card-title', 'h4');
-   postsTitle.textContent = 'Посты';
-   cardBody.appendChild(postsTitle);
+    const postsTitle = document.createElement('h2');
+    postsTitle.classList.add('card-title', 'h4');
+    postsTitle.textContent = 'Посты';
+    cardBody.appendChild(postsTitle);
 
-   const postsList = document.createElement('ul');
-   postsList.classList.add('list-group', 'border-0', 'rounded-0');
+    const postsList = document.createElement('ul');
+    postsList.classList.add('list-group', 'border-0', 'rounded-0');
 
-   posts.forEach((post) => {
-     const isChecked = state.ui.readPosts.includes(post.link);
-     const postClass = isChecked ? 'fw-normal' : 'fw-bold';
+    posts.forEach((post) => {
+      const isChecked = state.ui.readPosts.includes(post.link);
+      const postClass = isChecked ? 'fw-normal' : 'fw-bold';
 
-     const postItem = document.createElement('li');
-     postItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
-     postItem.innerHTML = `
+      const postItem = document.createElement('li');
+      postItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+      postItem.innerHTML = `
        <a href="${post.link}" target="_blank" rel="noopener noreferrer" class="${postClass}" data-id="${post.link}">${post.title}</a>
        <button type="button" class="btn btn-outline-primary btn-sm" data-id="${post.link}" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>
      `;
-     postsList.appendChild(postItem);
-   });
+      postsList.appendChild(postItem);
+    });
 
-   card.appendChild(cardBody);
-   card.appendChild(postsList);
-   postsContainer.appendChild(card);
- }
+    card.appendChild(cardBody);
+    card.appendChild(postsList);
+    postsContainer.appendChild(card);
+  }
 
   // Обработчик для открытия модального окна
   postsContainer.addEventListener('click', (e) => {
