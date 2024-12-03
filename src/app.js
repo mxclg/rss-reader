@@ -28,10 +28,35 @@ const app = async () => {
      error: '',
    },
    feeds: [],
-   posts: [], // Добавлен массив для постов
+   posts: [],
+   ui: {
+     readPosts: [], // Переименовано для большей ясности
+   },
  };
 
   const watchedState = initView(state);
+
+  const markPostAsRead = (postId) => {
+   if (!watchedState.ui.readPosts.includes(postId)) {
+     watchedState.ui.readPosts.push(postId);
+   }
+ };
+
+ const postsContainer = document.querySelector('.posts');
+
+postsContainer.addEventListener('click', (event) => {
+  const { target } = event;
+
+  if (target.tagName === 'A') {
+    const postId = target.dataset.id;
+    markPostAsRead(postId);
+  }
+
+  if (target.tagName === 'BUTTON' && target.dataset.bsToggle === 'modal') {
+    const postId = target.dataset.id;
+    markPostAsRead(postId);
+  }
+});
 
   const form = document.querySelector('.rss-form');
   const input = document.getElementById('url-input');
@@ -80,10 +105,9 @@ const app = async () => {
   const updateFeeds = () => {
    if (watchedState.feeds.length === 0) {
      setTimeout(updateFeeds, 5000);
-     return; // Если фидов нет, просто ждем
+     return;
    }
  
-   // Пробегаемся по всем фидам
    const promises = watchedState.feeds.map((feed) =>
      fetchRSS(feed.url)
        .then((rssContent) => {
@@ -95,17 +119,16 @@ const app = async () => {
  
          // Добавляем новые посты в состояние
          newPosts.forEach((post) => {
-           watchedState.posts.push({ ...post, feedUrl: feed.url });
+           const isRead = watchedState.ui.readPosts.includes(post.link);
+           watchedState.posts.push({ ...post, feedUrl: feed.url, isRead }); // Сохраняем статус "прочитано"
          });
        })
        .catch((error) => {
          console.error(`Ошибка обновления фида ${feed.url}:`, error);
-         // Можно добавить отображение ошибки в интерфейсе, если нужно
          watchedState.form.error = `Ошибка обновления фида: ${feed.url}`;
        })
    );
  
-   // Ждем завершения всех обновлений и вызываем updateFeeds снова
    Promise.all(promises).finally(() => {
      setTimeout(updateFeeds, 5000);
    });

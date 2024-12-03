@@ -17,6 +17,7 @@ const parseRSS = (rssString) => {
   const posts = Array.from(items).map((item) => ({
     title: item.querySelector('title').textContent,
     link: item.querySelector('link').textContent,
+    description: item.querySelector('description')?.textContent || 'Описание недоступно.',
   }));
 
   return { feed: { title, description }, posts }; // Возвращаем объект с фидом и постами

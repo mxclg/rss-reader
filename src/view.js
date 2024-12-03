@@ -1,11 +1,19 @@
 import onChange from 'on-change';
 
-const render = (path, value) => {
+const render = (path, value, state) => {
   const input = document.getElementById('url-input');
   const feedback = document.querySelector('.feedback');
   const feedsContainer = document.querySelector('.feeds');
   const postsContainer = document.querySelector('.posts');
+  const modalTitle = document.querySelector('.modal-title');
+  const modalBody = document.querySelector('.modal-body');
+  const modalLink = document.querySelector('.full-article');
 
+  if (path === 'ui.readPosts') {
+   render('posts', state.posts, state); // Перерисуем список постов
+   return; // После выполнения этого условия выходим из функции
+ }
+  
   if (path === 'form.valid') {
     if (value === null) {
       input.classList.remove('is-invalid');
@@ -29,7 +37,6 @@ const render = (path, value) => {
   }
 
   if (path === 'feeds') {
-    // Рендерим фиды
     feedsContainer.innerHTML = ''; // Очищаем контейнер
 
     const card = document.createElement('div');
@@ -62,7 +69,6 @@ const render = (path, value) => {
   }
 
   if (path === 'posts') {
-    // Рендерим посты
     postsContainer.innerHTML = ''; // Очищаем контейнер
 
     const card = document.createElement('div');
@@ -80,11 +86,13 @@ const render = (path, value) => {
     postsList.classList.add('list-group', 'border-0', 'rounded-0');
 
     value.forEach((post) => {
+      const isChecked = state.ui.readPosts.includes(post.link);
+      const postClass = isChecked ? 'fw-normal link-secondary' : 'fw-bold';
       const postItem = document.createElement('li');
       postItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
       postItem.innerHTML = `
-        <a href="${post.link}" target="_blank" rel="noopener noreferrer" class="fw-bold">${post.title}</a>
-        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>
+        <a href="${post.link}" target="_blank" rel="noopener noreferrer" class="${postClass}" data-id="${post.link}">${post.title}</a>
+        <button type="button" class="btn btn-outline-primary btn-sm" data-id="${post.link}" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>
       `;
       postsList.appendChild(postItem);
     });
@@ -93,8 +101,62 @@ const render = (path, value) => {
     card.appendChild(postsList);
     postsContainer.appendChild(card);
   }
+
+  if (path === 'ui.readPosts') {
+   const posts = state.posts;
+   postsContainer.innerHTML = ''; // Очищаем контейнер
+
+   const card = document.createElement('div');
+   card.classList.add('card', 'border-0');
+
+   const cardBody = document.createElement('div');
+   cardBody.classList.add('card-body');
+
+   const postsTitle = document.createElement('h2');
+   postsTitle.classList.add('card-title', 'h4');
+   postsTitle.textContent = 'Посты';
+   cardBody.appendChild(postsTitle);
+
+   const postsList = document.createElement('ul');
+   postsList.classList.add('list-group', 'border-0', 'rounded-0');
+
+   posts.forEach((post) => {
+     const isChecked = state.ui.readPosts.includes(post.link);
+     const postClass = isChecked ? 'fw-normal' : 'fw-bold';
+
+     const postItem = document.createElement('li');
+     postItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+     postItem.innerHTML = `
+       <a href="${post.link}" target="_blank" rel="noopener noreferrer" class="${postClass}" data-id="${post.link}">${post.title}</a>
+       <button type="button" class="btn btn-outline-primary btn-sm" data-id="${post.link}" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>
+     `;
+     postsList.appendChild(postItem);
+   });
+
+   card.appendChild(cardBody);
+   card.appendChild(postsList);
+   postsContainer.appendChild(card);
+ }
+
+  // Обработчик для открытия модального окна
+  postsContainer.addEventListener('click', (e) => {
+    const { id } = e.target.dataset;
+    if (id) {
+      const post = state.posts.find((p) => p.link === id);
+      if (post) {
+        modalTitle.textContent = post.title;
+        modalBody.textContent = post.description;
+        modalLink.href = post.link;
+
+        // Отмечаем пост как прочитанный
+        if (!state.ui.readPosts.includes(id)) {
+          state.ui.readPosts.push(id);
+        }
+      }
+    }
+  });
 };
 
-const initView = (state) => onChange(state, render);
+const initView = (state) => onChange(state, (path, value) => render(path, value, state));
 
 export default initView;
