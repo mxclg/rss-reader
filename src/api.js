@@ -7,12 +7,12 @@ const fetchRSS = async (url) => {
     const response = await axios.get(allOriginsBaseURL, {
       params: {
         url,
-        disableCache: true, // Отключаем кеширование
+        disableCache: true,
       },
     });
-    return response.data.contents; // Возвращаем HTML контент без декодирования
+    return response.data.contents;
   } catch (error) {
-    throw new Error('validation.netError'); // Сообщение об ошибке сети
+    throw new Error('validation.netError');
   }
 };
 

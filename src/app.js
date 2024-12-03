@@ -14,11 +14,11 @@ const app = async () => {
   });
 
   yup.setLocale({
+    mixed: {
+      required: () => ({ key: 'validation.notEmpty' }),
+    },
     string: {
       url: () => ({ key: 'validation.urlError' }),
-    },
-    mixed: {
-      notOneOf: () => ({ key: 'validation.notOneOf' }),
     },
   });
 
@@ -30,11 +30,11 @@ const app = async () => {
     feeds: [],
     posts: [],
     ui: {
-      readPosts: [], // Переименовано для большей ясности
+      readPosts: [],
     },
   };
 
-  const watchedState = initView(state);
+  const watchedState = initView(state, i18n);
 
   const markPostAsRead = (postId) => {
     if (!watchedState.ui.readPosts.includes(postId)) {
@@ -61,7 +61,7 @@ const app = async () => {
   const form = document.querySelector('.rss-form');
   const input = document.getElementById('url-input');
 
-  const schema = yup.string().url().required();
+  const schema = yup.string().trim().required().url();
 
   const validateAndAddFeed = (url) => {
     watchedState.form.valid = null;
@@ -78,12 +78,10 @@ const app = async () => {
           .then((rssContent) => {
             const { feed, posts } = parseRSS(rssContent);
 
-            // Добавляем фид с его URL
             watchedState.feeds.push({ ...feed, url: validUrl });
 
-            // Добавляем посты в состояние
             posts.forEach((post) => {
-              watchedState.posts.push({ ...post, feedUrl: validUrl }); // Связываем посты с фидом
+              watchedState.posts.push({ ...post, feedUrl: validUrl });
             });
 
             watchedState.form.valid = true;
@@ -112,11 +110,9 @@ const app = async () => {
       .then((rssContent) => {
         const { posts } = parseRSS(rssContent);
 
-        // Проверяем новые посты
         const existingLinks = watchedState.posts.map((post) => post.link);
         const newPosts = posts.filter((post) => !existingLinks.includes(post.link));
 
-        // Добавляем новые посты в состояние
         newPosts.forEach((post) => {
           const isRead = watchedState.ui.readPosts.includes(post.link);
           watchedState.posts.push({ ...post, feedUrl: feed.url, isRead });
@@ -132,7 +128,6 @@ const app = async () => {
     });
   };
 
-  // Запускаем updateFeeds внутри app
   updateFeeds();
 };
 

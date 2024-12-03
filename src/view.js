@@ -1,6 +1,6 @@
 import onChange from 'on-change';
 
-const render = (path, value, state) => {
+const render = (path, value, state, i18n) => {
   const input = document.getElementById('url-input');
   const feedback = document.querySelector('.feedback');
   const feedsContainer = document.querySelector('.feeds');
@@ -10,8 +10,8 @@ const render = (path, value, state) => {
   const modalLink = document.querySelector('.full-article');
 
   if (path === 'ui.readPosts') {
-    render('posts', state.posts, state); // Перерисуем список постов
-    return; // После выполнения этого условия выходим из функции
+    render('posts', state.posts, state);
+    return;
   }
 
   if (path === 'form.valid') {
@@ -22,7 +22,7 @@ const render = (path, value, state) => {
       input.classList.remove('is-invalid');
       feedback.classList.remove('text-danger');
       feedback.classList.add('text-success');
-      feedback.textContent = 'RSS успешно загружен';
+      feedback.textContent = i18n.t('validation.successRss');
       input.value = '';
       input.focus();
     } else {
@@ -37,7 +37,7 @@ const render = (path, value, state) => {
   }
 
   if (path === 'feeds') {
-    feedsContainer.innerHTML = ''; // Очищаем контейнер
+    feedsContainer.innerHTML = '';
 
     const card = document.createElement('div');
     card.classList.add('card', 'border-0');
@@ -69,7 +69,7 @@ const render = (path, value, state) => {
   }
 
   if (path === 'posts') {
-    postsContainer.innerHTML = ''; // Очищаем контейнер
+    postsContainer.innerHTML = '';
 
     const card = document.createElement('div');
     card.classList.add('card', 'border-0');
@@ -92,7 +92,7 @@ const render = (path, value, state) => {
       postItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
       postItem.innerHTML = `
         <a href="${post.link}" target="_blank" rel="noopener noreferrer" class="${postClass}" data-id="${post.link}">${post.title}</a>
-        <button type="button" class="btn btn-outline-primary btn-sm" data-id="${post.link}" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>
+        <button type="button" class="btn btn-outline-primary btn-sm" data-id="${post.link}" data-bs-toggle="modal" data-bs-target="#modal">${i18n.t('buttons.view')}</button>
       `;
       postsList.appendChild(postItem);
     });
@@ -104,7 +104,7 @@ const render = (path, value, state) => {
 
   if (path === 'ui.readPosts') {
     const { posts } = state;
-    postsContainer.innerHTML = ''; // Очищаем контейнер
+    postsContainer.innerHTML = '';
 
     const card = document.createElement('div');
     card.classList.add('card', 'border-0');
@@ -128,7 +128,7 @@ const render = (path, value, state) => {
       postItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
       postItem.innerHTML = `
        <a href="${post.link}" target="_blank" rel="noopener noreferrer" class="${postClass}" data-id="${post.link}">${post.title}</a>
-       <button type="button" class="btn btn-outline-primary btn-sm" data-id="${post.link}" data-bs-toggle="modal" data-bs-target="#modal">Просмотр</button>
+       <button type="button" class="btn btn-outline-primary btn-sm" data-id="${post.link}" data-bs-toggle="modal" data-bs-target="#modal">${i18n.t('buttons.view')}</button>
      `;
       postsList.appendChild(postItem);
     });
@@ -138,7 +138,6 @@ const render = (path, value, state) => {
     postsContainer.appendChild(card);
   }
 
-  // Обработчик для открытия модального окна
   postsContainer.addEventListener('click', (e) => {
     const { id } = e.target.dataset;
     if (id) {
@@ -148,7 +147,6 @@ const render = (path, value, state) => {
         modalBody.textContent = post.description;
         modalLink.href = post.link;
 
-        // Отмечаем пост как прочитанный
         if (!state.ui.readPosts.includes(id)) {
           state.ui.readPosts.push(id);
         }
@@ -157,6 +155,8 @@ const render = (path, value, state) => {
   });
 };
 
-const initView = (state) => onChange(state, (path, value) => render(path, value, state));
-
+const initView = (state, i18n) => onChange(
+  state,
+  (path, value) => render(path, value, state, i18n),
+);
 export default initView;
