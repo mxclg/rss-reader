@@ -10,9 +10,9 @@ const render = (path, value, state, i18n) => {
   const modalLink = document.querySelector('.full-article');
 
   if (path === 'ui.readPosts') {
-    render('posts', state.posts, state);
-    return;
-  }
+   render('posts', state.posts, state, i18n);
+   return;
+}
 
   if (path === 'form.valid') {
     if (value === null) {

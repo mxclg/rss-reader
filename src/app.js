@@ -2,7 +2,7 @@ import * as yup from 'yup';
 import i18next from 'i18next';
 import resources from './locales/index.js';
 import initView from './view.js';
-import fetchRSS from './api.js';
+import fetchRSS from './fetchRSS.js';
 import parseRSS from './parse.js';
 
 const app = async () => {
