@@ -36,28 +36,36 @@ const app = async () => {
 
   const watchedState = initView(state, i18n);
 
+  const postsContainer = document.querySelector('.posts');
+postsContainer.addEventListener('click', (e) => {
+  const modalTitle = document.querySelector('.modal-title');
+  const modalBody = document.querySelector('.modal-body');
+  const modalLink = document.querySelector('.full-article');
+
+  const { id } = e.target.dataset;
+  if (id) {
+    const post = watchedState.posts.find((p) => p.link === id);
+    if (post) {
+      modalTitle.textContent = post.title;
+      modalBody.textContent = post.description;
+      modalLink.href = post.link;
+
+      if (!watchedState.ui.readPosts.includes(id)) {
+        watchedState.ui.readPosts.push(id); // Обновляем состояние
+        watchedState.posts = [...watchedState.posts]; // Это заставит перерисовать список постов
+      }
+    }
+  }
+});
+
+  // Функция для отметки постов как прочитанных (оставлена для другого функционала)
   const markPostAsRead = (postId) => {
     if (!watchedState.ui.readPosts.includes(postId)) {
       watchedState.ui.readPosts.push(postId);
     }
   };
 
-  const postsContainer = document.querySelector('.posts');
-
-  postsContainer.addEventListener('click', (event) => {
-    const { target } = event;
-
-    if (target.tagName === 'A') {
-      const postId = target.dataset.id;
-      markPostAsRead(postId);
-    }
-
-    if (target.tagName === 'BUTTON' && target.dataset.bsToggle === 'modal') {
-      const postId = target.dataset.id;
-      markPostAsRead(postId);
-    }
-  });
-
+  // Валидация и добавление нового фида
   const form = document.querySelector('.rss-form');
   const input = document.getElementById('url-input');
 
@@ -94,12 +102,14 @@ const app = async () => {
       });
   };
 
+  // Событие на отправку формы
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     const url = input.value.trim();
     validateAndAddFeed(url);
   });
 
+  // Обновление фидов каждые 5 секунд
   const updateFeeds = () => {
     if (watchedState.feeds.length === 0) {
       setTimeout(updateFeeds, 5000);
