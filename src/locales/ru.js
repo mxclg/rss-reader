@@ -5,7 +5,7 @@ export default {
     },
     validation: {
       urlError: 'Ссылка должна быть валидным URL',
-      notOneOf: 'RSS уже существует',
+      rssAlreadyExist: 'RSS уже существует',
       notEmpty: 'Не должно быть пустым',
       netError: 'Ошибка сети',
       rssError: 'Ресурс не содержит валидный RSS',

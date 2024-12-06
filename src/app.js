@@ -5,7 +5,7 @@ import initView from './view.js';
 import fetchRSS from './fetchRSS.js';
 import parseRSS from './parse.js';
 
-const app = async () => {
+export default async () => {
   const elements = {
     postsContainer: document.querySelector('.posts'),
     form: document.querySelector('.rss-form'),
@@ -47,43 +47,42 @@ const app = async () => {
 
   const watchedState = initView(state, i18n);
 
-  const schema = yup.string().trim().required().url();
-
-  const addFeed = async (url) => {
-    const rssContent = await fetchRSS(url);
-    const { feed, posts } = parseRSS(rssContent);
-
-    watchedState.feeds.push({ ...feed, url });
-    posts.forEach((post) => {
-      watchedState.posts.push({ ...post, feedUrl: url });
-    });
-
-    watchedState.form.valid = true;
+  const errorHandling = (error, context) => {
+    console.error(`Ошибка в ${context}:`, error.message);
+    watchedState.form.error = i18n.t(error.message?.key || error.message);
   };
 
-  const checkFeedExists = (url) => {
-    const feedAlreadyAded = watchedState.feeds.some((feed) => feed.url === url);
-    if (feedAlreadyAded) {
-      throw new Error('validation.notOneOf');
+  const addFeed = async (url) => {
+    try {
+      const rssContent = await fetchRSS(url);
+      const { feed, posts } = parseRSS(rssContent);
+
+      watchedState.feeds.push({ ...feed, url });
+      posts.forEach((post) => {
+        watchedState.posts.push({ ...post, feedUrl: url });
+      });
+
+      watchedState.form.valid = true;
+    } catch (error) {
+      errorHandling(error, 'addFeed');
     }
+  };
+
+  const validationSchema = (feeds) => {
+    const urls = feeds.map((feed) => feed.url);
+    return yup.string().trim().required().url()
+      .notOneOf(urls, 'validation.rssAlreadyExist');
   };
 
   const validateAndAddFeed = (url) => {
     watchedState.form.valid = null;
     watchedState.form.error = '';
 
-    const validateURL = schema.validate(url);
+    const schema = validationSchema(watchedState.feeds);
 
-    return validateURL
-      .then((validUrl) => {
-        checkFeedExists(validUrl);
-        return addFeed(validUrl);
-      })
-      .catch((error) => {
-        watchedState.form.valid = false;
-        const errorMessage = i18n.t(error.message?.key || error.message);
-        watchedState.form.error = errorMessage;
-      });
+    schema.validate(url)
+      .then((validUrl) => addFeed(validUrl))
+      .catch((error) => errorHandling(error, 'validateAndAddFeed'));
   };
 
   const addNewPosts = (posts, existingLinks, feedUrl) => {
@@ -100,10 +99,7 @@ const app = async () => {
       const existingLinks = watchedState.posts.map((post) => post.link);
       addNewPosts(posts, existingLinks, feed.url);
     })
-    .catch((error) => {
-      console.error(`Ошибка обновления фида ${feed.url}:`, error);
-      watchedState.form.error = `Ошибка обновления фида: ${feed.url}`;
-    });
+    .catch((error) => errorHandling(error, `refreshSingleFeed for ${feed.url}`));
 
   const updateAllFeeds = () => {
     if (watchedState.feeds.length === 0) {
@@ -147,5 +143,3 @@ const app = async () => {
 
   updateAllFeeds();
 };
-
-export default app;
