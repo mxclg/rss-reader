@@ -19,7 +19,8 @@ const createFeedItem = (feed) => {
 };
 
 const renderFeeds = (feedsContainer, feeds) => {
-  feedsContainer.innerHTML = '';
+  const container = feedsContainer;
+  container.innerHTML = '';
 
   const card = document.createElement('div');
   card.classList.add('card', 'border-0');
@@ -42,22 +43,25 @@ const renderFeeds = (feedsContainer, feeds) => {
 
   card.appendChild(cardBody);
   card.appendChild(feedsList);
-  feedsContainer.appendChild(card);
+  container.appendChild(card);
 };
 
 const renderFormValidation = (input, feedback, value, i18n) => {
+  const inputElement = input;
+  const feedbackElement = feedback;
+
   if (value === null) {
-    input.classList.remove('is-invalid');
-    feedback.textContent = '';
+    inputElement.classList.remove('is-invalid');
+    feedbackElement.textContent = '';
   } else if (value) {
-    input.classList.remove('is-invalid');
-    feedback.classList.remove('text-danger');
-    feedback.classList.add('text-success');
-    feedback.textContent = i18n.t('validation.successRss');
-    input.value = '';
-    input.focus();
+    inputElement.classList.remove('is-invalid');
+    feedbackElement.classList.remove('text-danger');
+    feedbackElement.classList.add('text-success');
+    feedbackElement.textContent = i18n.t('validation.successRss');
+    inputElement.value = '';
+    inputElement.focus();
   } else {
-    input.classList.add('is-invalid');
+    inputElement.classList.add('is-invalid');
   }
 };
 
@@ -94,7 +98,8 @@ const generatePostElement = (post, isRead, i18n) => {
 };
 
 const renderPosts = (posts, readPosts, postsContainer, i18n) => {
-  postsContainer.innerHTML = '';
+  const container = postsContainer;
+  container.innerHTML = '';
 
   const card = document.createElement('div');
   card.classList.add('card', 'border-0');
@@ -118,13 +123,14 @@ const renderPosts = (posts, readPosts, postsContainer, i18n) => {
 
   card.appendChild(cardBody);
   card.appendChild(postsList);
-  postsContainer.appendChild(card);
+  container.appendChild(card);
 };
 
 const renderFormError = (feedback, value) => {
-  feedback.classList.remove('text-success');
-  feedback.classList.add('text-danger');
-  feedback.textContent = value;
+  const feedbackElement = feedback;
+  feedbackElement.classList.remove('text-success');
+  feedbackElement.classList.add('text-danger');
+  feedbackElement.textContent = value;
 };
 
 const render = (path, value, state, i18n) => {
