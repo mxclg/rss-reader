@@ -80,7 +80,7 @@ export default () => {
   const validateAndAddFeed = (url) => {
     watchedState.form.valid = null;
     watchedState.form.error = '';
-    watchedState.form.isLoading = true; // Устанавливаем состояние загрузки
+    watchedState.form.isLoading = true;
 
     const schema = validationSchema(watchedState.feeds);
 
@@ -88,7 +88,7 @@ export default () => {
       .then((validUrl) => addFeed(validUrl))
       .catch((error) => errorHandling(error, 'validateAndAddFeed'))
       .finally(() => {
-        watchedState.form.isLoading = false; // Сбрасываем состояние загрузки
+        watchedState.form.isLoading = false;
       });
   };
 
