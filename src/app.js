@@ -5,7 +5,7 @@ import initView from './view.js';
 import fetchRSS from './fetchRSS.js';
 import parseRSS from './parse.js';
 
-export default async () => {
+export default () => {
   const elements = {
     postsContainer: document.querySelector('.posts'),
     form: document.querySelector('.rss-form'),
@@ -18,7 +18,7 @@ export default async () => {
   const defaultLang = 'ru';
 
   const i18n = i18next.createInstance();
-  await i18n.init({
+  i18n.init({
     lng: defaultLang,
     debug: false,
     resources,
@@ -52,20 +52,21 @@ export default async () => {
     watchedState.form.error = i18n.t(error.message?.key || error.message);
   };
 
-  const addFeed = async (url) => {
-    try {
-      const rssContent = await fetchRSS(url);
-      const { feed, posts } = parseRSS(rssContent);
+  const addFeed = (url) => {
+    fetchRSS(url)
+      .then((rssContent) => {
+        const { feed, posts } = parseRSS(rssContent);
 
-      watchedState.feeds.push({ ...feed, url });
-      posts.forEach((post) => {
-        watchedState.posts.push({ ...post, feedUrl: url });
+        watchedState.feeds.push({ ...feed, url });
+        posts.forEach((post) => {
+          watchedState.posts.push({ ...post, feedUrl: url });
+        });
+
+        watchedState.form.valid = true;
+      })
+      .catch((error) => {
+        errorHandling(error, 'addFeed');
       });
-
-      watchedState.form.valid = true;
-    } catch (error) {
-      errorHandling(error, 'addFeed');
-    }
   };
 
   const validationSchema = (feeds) => {
@@ -93,13 +94,15 @@ export default async () => {
     });
   };
 
-  const refreshSingleFeed = (feed) => fetchRSS(feed.url)
-    .then((rssContent) => {
-      const { posts } = parseRSS(rssContent);
-      const existingLinks = watchedState.posts.map((post) => post.link);
-      addNewPosts(posts, existingLinks, feed.url);
-    })
-    .catch((error) => errorHandling(error, `refreshSingleFeed for ${feed.url}`));
+  const refreshSingleFeed = (feed) => {
+    fetchRSS(feed.url)
+      .then((rssContent) => {
+        const { posts } = parseRSS(rssContent);
+        const existingLinks = watchedState.posts.map((post) => post.link);
+        addNewPosts(posts, existingLinks, feed.url);
+      })
+      .catch((error) => errorHandling(error, `refreshSingleFeed for ${feed.url}`));
+  };
 
   const updateAllFeeds = () => {
     if (watchedState.feeds.length === 0) {
