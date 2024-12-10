@@ -37,11 +37,13 @@ export default () => {
     form: {
       valid: true,
       error: '',
+      isLoading: false,
     },
     feeds: [],
     posts: [],
     ui: {
       readPosts: [],
+      modal: null,
     },
   };
 
@@ -78,12 +80,16 @@ export default () => {
   const validateAndAddFeed = (url) => {
     watchedState.form.valid = null;
     watchedState.form.error = '';
+    watchedState.form.isLoading = true; // Устанавливаем состояние загрузки
 
     const schema = validationSchema(watchedState.feeds);
 
     schema.validate(url)
       .then((validUrl) => addFeed(validUrl))
-      .catch((error) => errorHandling(error, 'validateAndAddFeed'));
+      .catch((error) => errorHandling(error, 'validateAndAddFeed'))
+      .finally(() => {
+        watchedState.form.isLoading = false; // Сбрасываем состояние загрузки
+      });
   };
 
   const addNewPosts = (posts, existingLinks, feedUrl) => {
@@ -101,7 +107,7 @@ export default () => {
         const existingLinks = watchedState.posts.map((post) => post.link);
         addNewPosts(posts, existingLinks, feed.url);
       })
-      .catch((error) => errorHandling(error, `refreshSingleFeed for ${feed.url}`));
+      .catch((error) => console.error(`Ошибка при обновлении фида ${feed.url}:`, error.message));
   };
 
   const updateAllFeeds = () => {

@@ -132,12 +132,24 @@ const renderFormError = (feedback, value) => {
   feedbackElement.classList.add('text-danger');
   feedbackElement.textContent = value;
 };
+
+const renderFormState = (isLoading, elements) => {
+  if (isLoading) {
+    elements.input.setAttribute('disabled', true);
+    elements.form.querySelector('button[type="submit"]').setAttribute('disabled', true);
+  } else {
+    elements.input.removeAttribute('disabled');
+    elements.form.querySelector('button[type="submit"]').removeAttribute('disabled');
+  }
+};
+
 const render = (path, value, state, i18n) => {
   const elements = {
     input: document.getElementById('url-input'),
     feedback: document.querySelector('.feedback'),
     feedsContainer: document.querySelector('.feeds'),
     postsContainer: document.querySelector('.posts'),
+    form: document.querySelector('.rss-form'),
     modalTitle: document.querySelector('.modal-title'),
     modalBody: document.querySelector('.modal-body'),
     modalLink: document.querySelector('.full-article'),
@@ -150,6 +162,10 @@ const render = (path, value, state, i18n) => {
 
     case 'form.error':
       renderFormError(elements.feedback, value);
+      break;
+
+    case 'form.isLoading':
+      renderFormState(value, elements);
       break;
 
     case 'feeds':
