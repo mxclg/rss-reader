@@ -132,13 +132,15 @@ const renderFormError = (feedback, value) => {
   feedbackElement.classList.add('text-danger');
   feedbackElement.textContent = value;
 };
-
 const render = (path, value, state, i18n) => {
   const elements = {
     input: document.getElementById('url-input'),
     feedback: document.querySelector('.feedback'),
     feedsContainer: document.querySelector('.feeds'),
     postsContainer: document.querySelector('.posts'),
+    modalTitle: document.querySelector('.modal-title'),
+    modalBody: document.querySelector('.modal-body'),
+    modalLink: document.querySelector('.full-article'),
   };
 
   switch (path) {
@@ -157,6 +159,15 @@ const render = (path, value, state, i18n) => {
     case 'posts':
       renderPosts(value, state.ui.readPosts, elements.postsContainer, i18n);
       break;
+
+    case 'ui.modal': {
+      const { modalTitle, modalBody, modalLink } = elements;
+      const post = value;
+      modalTitle.textContent = post.title;
+      modalBody.textContent = post.description;
+      modalLink.href = post.link;
+      break;
+    }
 
     default:
       console.warn(`Неизвестный путь: ${path}`);

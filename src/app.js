@@ -132,10 +132,7 @@ export default () => {
 
     if (!clickedPost) return;
 
-    const { title, description, link } = clickedPost;
-    elements.modalTitle.textContent = title;
-    elements.modalBody.textContent = description;
-    elements.modalLink.href = link;
+    watchedState.ui.modal = clickedPost;
 
     const alreadyRead = watchedState.ui.readPosts.includes(id);
     if (!alreadyRead) {
