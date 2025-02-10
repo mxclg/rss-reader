@@ -5,15 +5,14 @@
 
 # RSS Reader
 
-RSS Reader is a web application that allows users to aggregate and read RSS feeds conveniently. It helps track updates from multiple sources in real time, ensuring you never miss new content from your favorite blogs, news sites, or any other RSS-supported platforms.
+RSS Reader is a web application that allows users to subscribe to and read RSS feeds in a structured and convenient way. It aggregates updates from multiple sources, making it easy to follow new content in one place.
 
 ### Features
-- Add and manage multiple RSS feeds
-- Automatically fetch new posts and display updates
-- Highlight unread articles
-- Handle invalid RSS URLs and network errors
-- User-friendly and responsive interface
-- Built with modern JavaScript and follows MVC architecture
+- Add and manage multiple RSS feeds  
+- Automatically fetch and display new posts  
+- Highlight unread articles  
+- Handle invalid RSS URLs and network errors  
+- Clean and user-friendly interface  
 
-### Requirements
-You need to have [node.js](https://nodejs.org/en) installed. If it's not installed, use the [installation guide](https://github.com/Hexlet/ru-instructions/blob/main/nodejs.md). To check your node.js version, use:
+### Try it online
+[RSS Reader on Vercel](https://frontend-project-11-tau-eight.vercel.app)  
