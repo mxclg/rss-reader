@@ -7,7 +7,7 @@
 
 RSS Reader is a web application that allows users to subscribe to and read RSS feeds in a structured and convenient way. It aggregates updates from multiple sources, making it easy to follow new content in one place.
 
-### Features
+### Main features
 - Add and manage multiple RSS feeds  
 - Automatically fetch and display new posts  
 - Highlight unread articles  
